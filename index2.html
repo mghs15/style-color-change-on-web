@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>Display a map</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+<style>
+body { margin:0; padding:0; }
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+#menu {
+    position: absolute;
+    left:  0.5em;
+    top: 0.5em; 
+    padding: 0.2em 0.5em;
+    margin: 0 0;
+    background: #eeeeee;
+    box-shadow: 0px 0px 0px 5px #eeeeee;
+    border: dashed 3px #dddddd;
+    font-family: 'Open Sans', sans-serif;
+    width: 90%;
+    height: 75px;
+    max-width: 150px;
+}
+button.local {
+    position: relative;
+    left:  0.5em;
+    top: 0.5em; 
+    padding: 0em 0em;
+    margin: 0.2em 0.5em;
+    background: #ffdddd;
+    font-family: 'Open Sans', sans-serif;
+}
+
+</style>
+</head>
+<body>
+
+
+<div id='map'></div>
+<div id='menu'>
+  <div>
+    <button type="button" class="local" onclick="change_style_color()" >色を変える</button>
+  </div>
+  <div id="ano"></div>
+</div>
+
+<script>
+/*************************************************/
+/*Mapbox 関係設定                                */
+/*************************************************/
+var map = new mapboxgl.Map({
+  container: 'map', // container id
+  hash: true, //add #position on URL
+  style: './std.json', // stylesheet location
+  center: [139.78148, 35.768793], // starting position [lng, lat]
+  zoom: 15, // starting zoom
+  maxZoom: 17.99,
+  localIdeographFontFamily: ['MS Gothic', 'Hiragino Kaku Gothic Pro', 'sans-serif']
+});
+
+
+map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+map.addControl(new mapboxgl.ScaleControl() );
+
+/*************************************************/
+/*"rgba(r,g,b,a)"などのパース                      */
+/*************************************************/
+var parsecolor = function(txt){
+  if( (txt.indexOf("rgba") == 0) || (txt.indexOf("hsla") == 0) ){
+    var length = txt.length - 1;
+    var type= txt.slice(0, 4);
+    txt = txt.slice(5,length );
+    var col = txt.split(",");
+  }else{
+    var length = txt.length - 1;
+    var type= txt.slice(0, 3);
+    txt = txt.slice(4,length );
+    var col = txt.split(",");
+    col.push(1);
+  }
+  var color = [];
+  color.push( type );
+  color.push( parseInt(col[0]) );
+  color.push( parseInt(col[1]) );
+  color.push( parseInt(col[2]) );
+  color.push( Number(col[3]) );
+  return color;
+}
+
+/*************************************************/
+/*RGB→HSLの変換関係設定                         */
+/*************************************************/
+var calcsl = function(max, min) {
+	var L = (max + min)/(2*255);
+	var total = max + min;
+	var S=(max - min)/255;
+	if((total <= 0) || (total >= 510)){
+		S = 0;
+	}else if(total < 255){
+		S = (max-min)/(total);
+	}else{
+		S = (max-min)/(255*2-total);
+	}
+	var SL = {"s" : S, "l" : L};
+	return SL;
+}
+
+var rgb2hsl = function(r, g, b, a = 1) {
+	var max=0; var middle=0; var min = 0; 
+	var h=0; var s=0; var l=0; 
+	if((r == g) && (r == b)){
+		max = r; middle=b; min = g; 
+		h = 0;
+		var sl = calcsl(max, min);
+		s = sl.s;
+		l = sl.l;
+	}else if((r <= g) && (r < b)){
+		min = r;
+		if(g < b){
+			middle=g; max = b; 
+		}else{ 
+			middle=b; max = g; 
+		}
+		h = 60*((b-g)/(max-min))+180;
+		var sl = calcsl(max, min);
+		s = sl.s;
+		l = sl.l;
+	}else if((g <= b) && (g < r)){
+		min = g; 
+		if(r < b){
+			middle=r; max = b; 
+		}else{ 
+			middle=b; max = r; 
+		} 
+		h = 60*((r-b)/(max-min))+300;
+		var sl = calcsl(max, min);
+		s = sl.s;
+		l = sl.l;
+	}else{
+		min = b; 
+		if(g < r){
+			middle=g; max = r; 
+		}else{ 
+			middle=r; max = g; 
+		}
+		h = 60*((g-r)/(max-min))+60;
+		var sl = calcsl(max, min);
+		s = sl.s;
+		l = sl.l;
+	}
+	
+	if(h > 360){
+		h = h - 360;
+	}else if(h < 0){
+		h = h + 360;
+	}
+	
+	var hsl = [ Math.floor(h), Math.floor(s*100), Math.floor(l*100), a ];
+	return hsl;
+}
+
+/*************************************************/
+/*色自体の変換関係設定                           */
+/*************************************************/
+//現在、入出力ともにhslのみ対応
+
+var change_color = function(outputtype, o1, o2 , o3, o4){
+  //変換式
+  var c1 = o1 + 30;
+  var c2 = o2;
+  var c3 = o3;
+  var c4 = o4;
+  
+  if((outputtype == "hsla")){ //hslaの場合 % が必要
+    if( c1 > 360){
+		c1 = c1 - 360 * Math.floor(c1/360);
+	}else if(c1 < 0){
+		c1 = c1 - 360 * Math.ceil(c1/360);
+	}
+    c2 = c2 + "%";
+    c3 = c3 + "%";
+  }
+  var color_txt = outputtype + "(" + c1 + "," + c2 + "," + c3 + "," + c4 + ")";
+  return(color_txt);
+}
+
+/* そのまま表示する（変換しない）変換式のメモ
+var change_color = function(outputtype, o1, o2 , o3, o4){
+  //変換式
+  var c1 = o1;
+  var c2 = o2;
+  var c3 = o3;
+  var c4 = o4;
+  
+  if((outputtype == "hsla")){ //hslaの場合 % が必要
+    if( c1 > 360){
+		c1 = c1 - 360 * Math.floor(c1/360);
+	}else if(c1 < 0){
+		c1 = c1 - 360 * Math.ceil(c1/360);
+	}
+    c2 = c2 + "%";
+    c3 = c3 + "%";
+  }
+  var color_txt = outputtype + "(" + c1 + "," + c2 + "," + c3 + "," + c4 + ")";
+  return(color_txt);
+}
+*/
+
+/*test*/
+console.log(parsecolor("rgba(2,46,144,0.37)"));
+console.log(change_color("rgba", 2, 46, 144, 0.37));
+console.log(rgb2hsl( 2, 46, 144));
+
+
+/*************************************************/
+/*変換した色を表示しているスタイルに反映         */
+/*************************************************/
+var change_style_color = function(){
+  document.getElementById('ano').innerText = "";
+  var styleLoadStatus = map.isStyleLoaded();
+  if(styleLoadStatus){
+    var style = map.getStyle()
+    var layers = style.layers;
+    for(var i = 0;  i < layers.length;  i++ ) {
+      console.log(layer);
+      var layer = layers[i];
+      for(name in layer){
+        if(name === "paint"){
+          for(name in layer.paint){
+            if(name.match(/-color/)) {
+              console.log(name);
+              console.log(layer.paint[name]);
+              
+              var col = parsecolor(layer.paint[name]); //文字列をrgbaの配列にパース
+              console.log(col);
+              if((col[0] == "rgba") || (col[0] == "rgb")){ //rgb系ならhslに変換
+                var hsl = rgb2hsl(col[1], col[2], col[3], col[4]);
+              }else{
+                if(col[4]){
+                  var hsl = [col[1], col[2], col[3], col[4]];
+                }else{
+                  var hsl = [col[1], col[2], col[3], 1];
+                }
+              }
+              console.log(hsl);
+              layer.paint[name] = change_color("hsla", hsl[0], hsl[1], hsl[2], hsl[3]);//色を変換して反映
+              console.log(layer.paint[name]);
+            }
+          }
+        }else if(name === "layout"){
+          for(name in layer.layout){
+            if(name.match(/-color/)) {
+              var col = parsergb(layer.layout[name]); //文字列をrgbaの配列にパース
+              layer.layout[name] = change_color("rgba", col[0], col[1], col[2], col[3]);//rgbaを変換して反映
+            }
+          }
+        }
+      }
+    }
+    map.setStyle(style);
+    if(map.isStyleLoaded()){
+      document.getElementById('ano').innerText = "変換完了";
+    }
+  }else{
+    alert("まだ地図のスタイルを読み込めていません！");
+  
+  }
+}
+
+</script>
+ 
+</body>
+</html>
