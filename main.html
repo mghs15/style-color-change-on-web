@@ -81,6 +81,7 @@ button.local {
   <tr><td>鉄道</td><td><div id="color-picker-rail"></div></td></tr>
   <tr><td>建物</td><td><div id="color-picker-building"></div></td></tr>
   <tr><td>等高線</td><td><div id="color-picker-contour"></div></td></tr>
+  <tr><td>境界線</td><td><div id="color-picker-boundary"></div></td></tr>
   <tr><td>水域</td><td><div id="color-picker-waterarea"></div></td></tr>
   <tr><td>背景色</td><td><div id="color-picker-back"></div></td></tr>
   <tr><td>（実験中）</td></tr>
@@ -321,6 +322,7 @@ pickrsub.on('save', (color) => {
 var rail_color_arr = [0, 1, 50, 1]; //hsla
 var building_color_arr = [45, 100, 85, 1]; //hsla
 var contour_color_arr = [45, 50, 85, 1]; //hsla
+var boundary_color_arr = [270, 50, 50, 1]; //hsla
 var waterarea_color_arr = [45, 50, 85, 1]; //hsla
 var texthalo_color_arr = [1, 0, 99, 1]; //hsla
 var outline_color_arr = [0, 1, 85, 1]; //hsla
@@ -420,6 +422,47 @@ var pickrcontour = new Pickr({
     theme: "monolith",
     
     default: arr2hsla(contour_color_arr),
+    
+    swatches: [
+        'hsla(0,100,50,1)',
+        'hsla(22.5,100,50,1)',
+        'hsla(45,100,50,1)',
+        'hsla(67.5,100,50,1)',
+        'hsla(90,100,50,1)',
+        'hsla(112.5,100,50,1)',
+        'hsla(135,100,50,1)',
+        'hsla(157.5,100,50,1)',
+        'hsla(180,100,50,1)',
+        'hsla(202.5,100,50,1)',
+        'hsla(225,100,50,1)',
+        'hsla(247.5,100,50,1)',
+        'hsla(270,100,50,1)',
+        'hsla(292.5,100,50,1)',
+        'hsla(315,100,50,1)',
+        'hsla(327.5,100,50,1)'
+    ],
+    
+    components: {
+        // Main components
+        palette: false,
+        hue: true,
+        // Input / output Options
+        interaction: {
+            hsla: true,
+            hex: true,
+            rgba: true,
+            input: true,
+            save: true
+        }
+    }
+});
+
+var pickrboundary = new Pickr({
+
+    el: '#color-picker-boundary',
+    theme: "monolith",
+    
+    default: arr2hsla(boundary_color_arr),
     
     swatches: [
         'hsla(0,100,50,1)',
@@ -637,6 +680,12 @@ pickrcontour.on('save', (color) => {
     console.log(color.toHSLA());
     contour_color_arr = color.toHSLA();
     change_style_color(change_contourcolor, false); //色を変えたらすぐに反映
+})
+
+pickrboundary.on('save', (color) => {
+    console.log(color.toHSLA());
+    boundary_color_arr = color.toHSLA();
+    change_style_color(change_boundarycolor, false); //色を変えたらすぐに反映
 })
 
 pickrwaterarea.on('save', (color) => {
@@ -979,6 +1028,33 @@ var change_contourcolor = function({outputtype, o1, o2 , o3, o4, prop_name, slay
     c1 = contour_color_arr[0];
     c2 = contour_color_arr[1];
     c3 = contour_color_arr[2];
+    
+    if(c3 > 99){ //完全に白にはしない
+      c3 = 99;
+    }
+  }
+
+    if(o3 == 100){ //白はそのまま
+      c2 = o2; 
+      c3 = o3;
+    }
+  
+  var color_txt = create_hlsa_string(c1, c2, c3, c4, 0);
+  return(color_txt);
+}
+
+//境界線
+var change_boundarycolor = function({outputtype, o1, o2 , o3, o4, prop_name, slayer}){
+  //変換式
+  var c1 = o1;
+  var c2 = o2;
+  var c3 = o3;
+  var c4 = o4;
+  
+  if(slayer == "boundary"){ 
+    c1 = boundary_color_arr[0];
+    c2 = boundary_color_arr[1];
+    c3 = boundary_color_arr[2];
     
     if(c3 > 99){ //完全に白にはしない
       c3 = 99;
