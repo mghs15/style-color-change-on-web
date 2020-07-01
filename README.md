@@ -13,7 +13,7 @@ https://mghs15.github.io/style-color-change-on-web/main.html
 https://mghs15.github.io/style-color-change-on-web/index2.html
 
 * 単純に、色相（H）を一定値ずつ変化させます。
-* ベースとなるスタイルは地理院地図Vectorの標準地図（手を入れています）。
+* ベースとなるスタイルは地理院地図Vectorの標準地図。RGBの微調整のほか、[railway-map-style](https://github.com/mghs15/railway-map-style)をベースに、鉄道・道路・境界の太さを調整しています。
 
 ## 利用したライブラリやコード、参考文献
 * Pickr https://github.com/Simonwep/pickr
@@ -24,5 +24,5 @@ https://mghs15.github.io/style-color-change-on-web/index2.html
 * ベクトルタイルカラーデザイン変更ツール https://github.com/gsi-cyberjapan/gsivectortile-color-design
 
 ## 備考
-タイトルは ~ on the web　が正しいのだろうけど、長くなるので、theはとった。 
+タイトルは ~ on the web が正しいのだろうけど、長くなるので、theはとった。 
 

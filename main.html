@@ -98,16 +98,14 @@ button.local {
   <button type="button" class="local" name="monochrome" onclick="change_style_color_lup()" >明るく</button>
   <button type="button" class="local" name="monochrome" onclick="change_style_color_ldown()" >暗く</button>
   <button type="button" class="local" name="background" onclick="background_onoff()" >Background</button>
+  （実験中）
+  <button type="button" class="local" name="background" onclick="change_style_color_darkmode()" >ダークモード</button>
   </div>
   <strong>スタイル保存</strong>
   <div><a id="download">ダウンロード</a></div>
 </div>
 
 <script>
-
-/*************************************************/
-/*UI                                             */
-/*************************************************/
 
 /*************************************************/
 /*ボタンごとの処理                               */
@@ -148,6 +146,10 @@ var change_style_color_ldown = function(){
 //暗く
 var change_style_color_mono2color = function(){
   change_style_color(change_mono2color, false); //false -> 表示されているスタイルを利用
+}
+//ダークモード
+var change_style_color_darkmode = function(){
+  change_style_color(change_darkmode, false); //false -> 表示されているスタイルを利用
 }
 
 
@@ -1351,6 +1353,64 @@ var change_mono2color = function({outputtype, o1, o2 , o3, o4, prop_name, slayer
 }
 
 
+//ダークモード ------------------------------------------
+var change_darkmode = function({outputtype, o1, o2 , o3, o4, prop_name, slayer, outline, metapath}){
+  //変換式1=H, 2=S, 3=L
+  var c1 = o1;
+  var c2 = o2;
+  var c3 = o3;
+  var c4 = o4;
+  
+  
+  //個別処理
+  if(prop_name.match(/background/)){ //背景色
+    c2 = 1;
+    c3 = 20;
+  }else if(slayer == "waterarea" || slayer == "lake" || slayer == "river" || slayer == "coastline"){ //水域・河川・湖池
+    c2 = 1;
+    c3 = 1;
+  }else if(slayer == "building" || slayer == "structurea" ){ //建物
+    c2 = 10;//少し色味を残す
+    c3 = 15;
+  }else if(slayer == "wstructurea" ){ //水部構造物
+    c2 = 1;
+    c3 = 50;
+  }else if(slayer == "railway" ){ //鉄道
+    c2 = 1;
+    //明度を反転させるようなイメージ
+    if(o3 > 69){
+      c3 = 1;
+    }else{
+      c3 = 70;
+    }
+  }else if(slayer == "road" ){ //道路
+    if(outline == "outline"){
+      c2 = 1;
+      c3 = 90;
+    }else if(!(metapath.match(/-高速/) || metapath.match(/-主要/) || metapath.match(/-国道-/))){
+      //市町村道等にも、メインカラーが反映されているところがあるので、グレーにする
+      c2 = 5;//少し色味を残すなら、10くらいに
+      c3 = 35;
+    }
+  }else if(prop_name.match(/text-halo-/)){//haloは背景と同じ色に
+    c2 = 1;
+    c3 = 20;
+  }else if(prop_name.match(/text-color/) && (!metapath.match(/番号/) && slayer != "landforml")){//文字色は一律に灰色に(国道・高速番号だけ除く)
+    c2 = 15;//少し色味を残す
+    c3 = 70;
+  }else if(slayer == "contour" || slayer == "landforml"){//等高線
+    c2 = 1;
+    c3 = 30;
+  }else if(slayer == "boundary" ){//境界線
+    c2 = 1;
+  }
+  
+  //hslaの場合
+  var color_txt = create_hlsa_string(c1, c2, c3, c4, 0);
+  
+  return(color_txt);
+}
+
 //---------------------------------------------------------------------
 /* そのまま表示する（変換しない）変換式のメモ */
 var stay_color = function(outputtype, o1, o2 , o3, o4){
@@ -1493,13 +1553,17 @@ var change_style = function(style, callback, use_origin_style = true){
         var slayer = "";
       }
       
-      
       if(layer.metadata && layer.metadata["line-role"]){
         var linerole = layer.metadata["line-role"];
       }else{
         var linerole = "";
       }
       
+      if(layer.metadata && layer.metadata["path"]){
+        var metapath = layer.metadata["path"];
+      }else{
+        var metapath = "";
+      }
       
       
       for(name in layer){
@@ -1514,7 +1578,7 @@ var change_style = function(style, callback, use_origin_style = true){
               if((col[0] == "rgba") || (col[0] == "rgb")){ //rgb系ならhslに変換
                 var hsl = rgb2hsl(col[1], col[2], col[3], col[4]);
               }else{
-                if(col[4]){
+                if(col[4] || col[4] == 0){
                   var hsl = [col[1], col[2], col[3], col[4]];
                 }else{
                   var hsl = [col[1], col[2], col[3], 1];
@@ -1530,7 +1594,8 @@ var change_style = function(style, callback, use_origin_style = true){
                 o4: hsl[3], 
                 prop_name: name, 
                 slayer: slayer,
-                linerole: linerole
+                linerole: linerole,
+                metapath: metapath
               }
               );
               //console.log(layer.paint[name]);
