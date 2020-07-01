@@ -7,13 +7,14 @@
 ### メインカラーとアクセントカラーで指定 
 https://mghs15.github.io/style-color-change-on-web/main.html
 
-プログラムの内容についてメモ程度ですが、`test.md`に記述しています。
+* プログラムの内容についてメモ程度ですが、`test.md`に記述しています。
+* ベースとなるスタイルは地理院地図Vectorの淡色地図。RGBの微調整のほか、[railway-map-style](https://github.com/mghs15/railway-map-style)をベースに、鉄道・道路・境界の太さを調整しています。
 
 ### 色相を一定間隔で変更
 https://mghs15.github.io/style-color-change-on-web/index2.html
 
 * 単純に、色相（H）を一定値ずつ変化させます。
-* ベースとなるスタイルは地理院地図Vectorの標準地図。RGBの微調整のほか、[railway-map-style](https://github.com/mghs15/railway-map-style)をベースに、鉄道・道路・境界の太さを調整しています。
+* ベースとなるスタイルは地理院地図Vectorの標準地図（手を入れています）。
 
 ## 利用したライブラリやコード、参考文献
 * Pickr https://github.com/Simonwep/pickr
@@ -25,4 +26,3 @@ https://mghs15.github.io/style-color-change-on-web/index2.html
 
 ## 備考
 タイトルは ~ on the web が正しいのだろうけど、長くなるので、theはとった。 
-
