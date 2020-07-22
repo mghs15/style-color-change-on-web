@@ -2830,7 +2830,7 @@
             "paint": {
                 "text-color": "rgba(200, 160, 60,1)",
                 "text-halo-color": "rgba(255,255,255,1)",
-                "text-halo-width": 10
+                "text-halo-width": 1
             }
         },
         {
