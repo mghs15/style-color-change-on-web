@@ -15695,7 +15695,7 @@
             ],
             "layout": {
                 "line-cap": "butt",
-                "visibility": "visible"
+                "visibility": "none"
             },
             "paint": {
                 "line-color": "rgba(255,255,255,1)",
@@ -16187,7 +16187,7 @@
             ],
             "layout": {
                 "line-cap": "butt",
-                "visibility": "visible"
+                "visibility": "none"
             },
             "paint": {
                 "line-color": "rgba(255,255,255,1)",
@@ -16676,7 +16676,7 @@
             ],
             "layout": {
                 "line-cap": "butt",
-                "visibility": "visible"
+                "visibility": "none"
             },
             "paint": {
                 "line-color": "rgba(255,255,255,1)",
@@ -17002,7 +17002,7 @@
             ],
             "layout": {
                 "line-cap": "butt",
-                "visibility": "visible"
+                "visibility": "none"
             },
             "paint": {
                 "line-color": "rgba(255,255,255,1)",
