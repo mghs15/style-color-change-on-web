@@ -974,7 +974,8 @@ var change_railcolor = function({outputtype, o1, o2 , o3, o4, prop_name, slayer}
   if(slayer == "railway"){ 
     c1 = rail_color_arr[0];
     c2 = rail_color_arr[1];
-    c3 = (o3 + rail_color_arr[2])/2;
+    c3 = rail_color_arr[2];
+    //c3 = (o3 + rail_color_arr[2])/2;
     
     if(c3 > 99){ //完全に白にはしない
       c3 = 99;
@@ -1377,11 +1378,9 @@ var change_darkmode = function({outputtype, o1, o2 , o3, o4, prop_name, slayer, 
     c3 = 50;
   }else if(slayer == "railway" ){ //鉄道
     c2 = 1;
-    //明度を反転させるようなイメージ
-    if(o3 > 69){
-      c3 = 1;
-    }else{
-      c3 = 70;
+    //ダークモードのデフォルト背景に溶け込まないようにする。
+    if(o3 < 30){
+      c3 = c3 + 30;
     }
   }else if(slayer == "road" ){ //道路
     if(outline == "outline"){
