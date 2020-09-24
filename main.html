@@ -100,6 +100,10 @@ button.local {
   <button type="button" class="local" name="background" onclick="background_onoff()" >Background</button>
   （実験中）
   <button type="button" class="local" name="background" onclick="change_style_color_darkmode()" >ダークモード</button>
+  <span>輝度調整(高速・国道)</span><br>
+  <input type="range" id="dark_sat_bar1" name="dark_sat_bar1" min="0" max="100" value="100"><br>
+  <span>輝度調整(その他)</span><br>
+  <input type="range" id="dark_sat_bar2" name="dark_sat_bar2" min="0" max="100" value="10">
   </div>
   <strong>スタイル保存</strong>
   <div><a id="download">ダウンロード</a></div>
@@ -1362,6 +1366,17 @@ var change_darkmode = function({outputtype, o1, o2 , o3, o4, prop_name, slayer, 
   var c3 = o3;
   var c4 = o4;
   
+  var satacc = document.getElementById("dark_sat_bar1").value;
+  //if(!satacc) satacc = o3;
+  if(satacc < 1) satacc = 1;
+  if(satacc > 99) satacc = 99;
+  console.log(satacc);
+  
+  var satbase = document.getElementById("dark_sat_bar2").value;
+  //if(!satbase) satbase = 15;
+  if(satacc < 1) satacc = 1;
+  if(satacc > 99) satacc = 99;
+  console.log(satbase);
   
   //個別処理
   if(prop_name.match(/background/)){ //背景色
@@ -1371,7 +1386,8 @@ var change_darkmode = function({outputtype, o1, o2 , o3, o4, prop_name, slayer, 
     c2 = 1;
     c3 = 1;
   }else if(slayer == "building" || slayer == "structurea" ){ //建物
-    c2 = 10;//少し色味を残す
+    //c2 = 10;//少し色味を残す
+    c2 = satbase;
     c3 = 15;
   }else if(slayer == "wstructurea" ){ //水部構造物
     c2 = 1;
@@ -1386,16 +1402,21 @@ var change_darkmode = function({outputtype, o1, o2 , o3, o4, prop_name, slayer, 
     if(outline == "outline"){
       c2 = 1;
       c3 = 90;
-    }else if(!(metapath.match(/-高速/) || metapath.match(/-主要/) || metapath.match(/-国道-/))){
+    }else if(!metapath.match(/-高速/) && !metapath.match(/-主要/) && !metapath.match(/-国道/) ){
       //市町村道等にも、メインカラーが反映されているところがあるので、グレーにする
-      c2 = 5;//少し色味を残すなら、10くらいに
+      //c2 = 5;//少し色味を残すなら、10くらいに
+      c2 = satbase;
       c3 = 35;
+    }else{
+      //高速・国道の輝度調整
+      if(o2 > 0) c2 = satacc;
     }
   }else if(prop_name.match(/text-halo-/)){//haloは背景と同じ色に
     c2 = 1;
     c3 = 20;
   }else if(prop_name.match(/text-color/) && (!metapath.match(/番号/) && slayer != "landforml")){//文字色は一律に灰色に(国道・高速番号だけ除く)
-    c2 = 15;//少し色味を残す
+    //c2 = 15;//少し色味を残す
+    c2 = satbase;
     c3 = 70;
   }else if(slayer == "contour" || slayer == "landforml"){//等高線
     c2 = 1;
