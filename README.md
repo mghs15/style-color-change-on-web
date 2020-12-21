@@ -9,6 +9,7 @@ https://mghs15.github.io/style-color-change-on-web/main.html
 
 * プログラムの内容についてメモ程度ですが、`test.md`に記述しています。
 * ベースとなるスタイルは地理院地図Vectorの淡色地図。RGBの微調整のほか、[railway-map-style](https://github.com/mghs15/railway-map-style)をベースに、鉄道・道路・境界の太さを調整しています。
+* 配色の設計方針は`color-design.md`に記述しています。
 
 ### 色相を一定間隔で変更
 https://mghs15.github.io/style-color-change-on-web/index2.html
