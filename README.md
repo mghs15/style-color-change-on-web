@@ -11,6 +11,12 @@ https://mghs15.github.io/style-color-change-on-web/main.html
 * ベースとなるスタイルは地理院地図Vectorの淡色地図。RGBの微調整のほか、[railway-map-style](https://github.com/mghs15/railway-map-style)をベースに、鉄道・道路・境界の太さを調整しています。
 * 配色の設計方針は`color-design.md`に記述しています。
 
+#### ToDo
+* SやLの値を工夫することで、可逆的に変換できないかといろいろ試行錯誤しているが、適当にプログラムを増築したために、相当複雑になってしまった。
+* 今は、色のH,S,Lを見て、色を変換しているが、将来的には、背景色と同化させるべき色（paleでRGBが255,255,255のもの）は、metadata等で明示的に示しておいた方が、プログラムはシンプルになるはず。
+* 現状、高速道路・国道の分別にmetadataのpathを利用しているので、もはや色だけで複雑な色の制御を可逆的に行うのは（作者にとっては）困難な気がする。
+
+
 ### 色相を一定間隔で変更
 https://mghs15.github.io/style-color-change-on-web/index2.html
 
